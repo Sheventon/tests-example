@@ -1,0 +1,26 @@
+POST http://localhost:8080/api/v1/brand
+Content-Type: application/json
+
+{
+  "name": "Chery",
+  "maxCars": 5
+}
+
+###
+GET http://localhost:8080/api/v1/brand/Chery
+
+###
+POST localhost:8080/api/v1/car
+Content-Type: application/json
+
+{
+  "brandName": "Chery",
+  "model": "Tiggo 4 Pro",
+  "year": 2024,
+  "color": "BLUE",
+  "engine": 1.5,
+  "horsesPower": 147
+}
+
+###
+GET http://localhost:8080/api/v1/car/all

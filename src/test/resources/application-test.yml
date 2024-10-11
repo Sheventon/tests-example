@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tests_meet_up
+    username: postgres
+    password: 2029
