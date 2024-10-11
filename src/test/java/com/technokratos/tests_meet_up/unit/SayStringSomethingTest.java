@@ -3,12 +3,8 @@ package com.technokratos.tests_meet_up.unit;
 import com.technokratos.tests_meet_up.service.SayStringService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 public class SayStringSomethingTest {
 
@@ -26,7 +22,7 @@ public class SayStringSomethingTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"London is the capital of Great Britain", "Cristiano better than Messi"})
+    @ValueSource(strings = {"London is the capital of Great Britain", "Cristiano is better than Messi", ""})
     public void testSaySomethingParametrized(String something) {
         Assertions.assertEquals(something, sayStringService.saySomething(something));
     }

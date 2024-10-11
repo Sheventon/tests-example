@@ -3,6 +3,7 @@ package com.technokratos.tests_meet_up.integration;
 import com.technokratos.tests_meet_up.dto.CarDto;
 import com.technokratos.tests_meet_up.exception.utils.ErrorMessage;
 import com.technokratos.tests_meet_up.model.Brand;
+import com.technokratos.tests_meet_up.model.Car;
 import com.technokratos.tests_meet_up.repository.BrandRepository;
 import com.technokratos.tests_meet_up.repository.CarRepository;
 import com.technokratos.tests_meet_up.service.CarService;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,19 +54,15 @@ public class CarFullyIntegrationTests {
 
     private final TestRestTemplate testRestTemplate;
 
-    private final CarService carService;
-
     private final CarRepository carRepository;
 
     private final BrandRepository brandRepository;
 
     @Autowired
     public CarFullyIntegrationTests(TestRestTemplate testRestTemplate,
-                                    CarService carService,
                                     CarRepository carRepository,
                                     BrandRepository brandRepository) {
         this.testRestTemplate = testRestTemplate;
-        this.carService = carService;
         this.carRepository = carRepository;
         this.brandRepository = brandRepository;
     }
@@ -84,6 +83,27 @@ public class CarFullyIntegrationTests {
                 .build();
         brandRepository.save(brand);
         brandRepository.save(brand2);
+
+        Car car = Car.builder()
+                .id(1L)
+                .brand(brand)
+                .model("5 Series")
+                .year(2020)
+                .color("WHITE")
+                .engine(3.0f)
+                .horsesPower(249)
+                .build();
+        Car car2 = Car.builder()
+                .id(2L)
+                .brand(brand)
+                .model("7 Series")
+                .year(2020)
+                .color("BLACK")
+                .engine(3.0f)
+                .horsesPower(350)
+                .build();
+        carRepository.save(car);
+        carRepository.save(car2);
     }
 
     @AfterEach
@@ -156,13 +176,25 @@ public class CarFullyIntegrationTests {
                 .exchange("/api/v1/car", HttpMethod.POST, entity, CarDto.class);
         assertAll(
                 () -> assertNotNull(actual.getBody()),
-                () -> assertEquals(1L, actual.getBody().getId()),
+                () -> assertNotNull(actual.getBody().getId()),
                 () -> assertEquals(BMW.getBrandName(), actual.getBody().getBrandName()),
                 () -> assertEquals(1, brandRepository.findByName(BMW.getBrandName()).get().getCurrentCars()),
                 () -> assertEquals(2023, actual.getBody().getYear()),
                 () -> assertEquals("BLACK", actual.getBody().getColor()),
                 () -> assertEquals(2.0F, actual.getBody().getEngine()),
                 () -> assertEquals(190, actual.getBody().getHorsesPower())
+        );
+    }
+
+    @Test
+    public void testGetAllCars() {
+        ParameterizedTypeReference<List<CarDto>> type = new ParameterizedTypeReference<>() {
+        };
+        ResponseEntity<List<CarDto>> actual = testRestTemplate
+                .exchange("/api/v1/car/all", HttpMethod.GET, null, type);
+        assertAll(
+                () -> assertNotNull(actual.getBody()),
+                () -> assertEquals(2, actual.getBody().size())
         );
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -75,6 +76,7 @@ public class CarPartlyIntegrationTests {
         doNothing().when(brandService).updateBrandCurrentCars(brand);
         when(carRepository.save(any(Car.class)))
                 .thenReturn(new Car(1L, brand, "3 Series", 2023, "BLACK", 2.0F, 190));
+        //lenient().when(sayStringService.sayHello()).thenReturn("Hello new car");
         CarDto actual = carService.createCar(CAR_DTO);
         assertAll(
                 () -> assertNotNull(actual),
@@ -85,6 +87,43 @@ public class CarPartlyIntegrationTests {
                 () -> assertEquals("BLACK", actual.getColor()),
                 () -> assertEquals(2.0F, actual.getEngine()),
                 () -> assertEquals(190, actual.getHorsesPower())
+        );
+    }
+
+    @Test
+    public void testGetAllCars() {
+        when(carRepository.findAll())
+                .thenReturn(List.of(
+                                Car.builder()
+                                        .id(1L)
+                                        .brand(Brand.builder()
+                                                .name("Lada")
+                                                .build()
+                                        )
+                                        .model("Granta")
+                                        .year(2020)
+                                        .color("WHITE")
+                                        .engine(1.6f)
+                                        .horsesPower(106)
+                                        .build(),
+                                Car.builder()
+                                        .id(2L)
+                                        .brand(Brand.builder()
+                                                .name("Lada")
+                                                .build()
+                                        )
+                                        .model("Vesta")
+                                        .year(2023)
+                                        .color("WHITE")
+                                        .engine(1.6f)
+                                        .horsesPower(120)
+                                        .build()
+                        )
+                );
+        List<CarDto> cars = carService.getAll();
+        assertAll(
+                () -> assertNotNull(cars),
+                () -> assertEquals(2, cars.size())
         );
     }
 }

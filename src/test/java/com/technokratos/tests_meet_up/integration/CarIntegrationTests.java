@@ -4,6 +4,7 @@ import com.technokratos.tests_meet_up.dto.CarDto;
 import com.technokratos.tests_meet_up.exception.model.BrandNotExistsException;
 import com.technokratos.tests_meet_up.exception.model.MaximumCarsReachedException;
 import com.technokratos.tests_meet_up.model.Brand;
+import com.technokratos.tests_meet_up.model.Car;
 import com.technokratos.tests_meet_up.repository.BrandRepository;
 import com.technokratos.tests_meet_up.repository.CarRepository;
 import com.technokratos.tests_meet_up.service.CarService;
@@ -17,15 +18,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-/*@ContextConfiguration(classes = {
-        CarService.class, BrandService.class,
-        CarRepository.class, BrandRepository.class,
-        CarMapperImpl.class, BrandMapperImpl.class
-})*/
 @ExtendWith(SpringExtension.class)
 public class CarIntegrationTests {
 
@@ -81,6 +78,27 @@ public class CarIntegrationTests {
                 .build();
         brandRepository.save(brand);
         brandRepository.save(brand2);
+
+        Car car = Car.builder()
+                .id(1L)
+                .brand(brand)
+                .model("5 Series")
+                .year(2020)
+                .color("WHITE")
+                .engine(3.0f)
+                .horsesPower(249)
+                .build();
+        Car car2 = Car.builder()
+                .id(2L)
+                .brand(brand)
+                .model("7 Series")
+                .year(2020)
+                .color("BLACK")
+                .engine(3.0f)
+                .horsesPower(350)
+                .build();
+        carRepository.save(car);
+        carRepository.save(car2);
     }
 
     @AfterEach
@@ -131,13 +149,22 @@ public class CarIntegrationTests {
         CarDto actual = carService.createCar(BMW);
         assertAll(
                 () -> assertNotNull(actual),
-                () -> assertEquals(1L, actual.getId()),
+                () -> assertNotNull(actual.getId()),
                 () -> assertEquals(BMW.getBrandName(), actual.getBrandName()),
                 () -> assertEquals(1, brandRepository.findByName(BMW.getBrandName()).get().getCurrentCars()),
                 () -> assertEquals(2023, actual.getYear()),
                 () -> assertEquals("BLACK", actual.getColor()),
                 () -> assertEquals(2.0F, actual.getEngine()),
                 () -> assertEquals(190, actual.getHorsesPower())
+        );
+    }
+
+    @Test
+    public void testGetAllCars() {
+        List<CarDto> cars = carService.getAll();
+        assertAll(
+                () -> assertNotNull(cars),
+                () -> assertEquals(2, cars.size())
         );
     }
 }
